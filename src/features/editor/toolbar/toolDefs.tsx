@@ -1,4 +1,4 @@
-import { Circle, Eraser, Hand, Minus, MousePointer2, MoveUpRight, Pen, Pencil, Square, Type } from 'lucide-solid';
+import { Circle, Eraser, Hand, Highlighter, Minus, MousePointer2, MoveUpRight, Pen, Pencil, Square, Type } from 'lucide-solid';
 import type { JSX } from 'solid-js';
 import type { ToolId } from '@/core/tools/types';
 
@@ -24,6 +24,7 @@ export const NAV_TOOLS: readonly ToolDef[] = [
 export const DRAW_TOOLS: readonly ToolDef[] = [
   def('pen', 'Pluma', 'P', Pen),
   def('pencil', 'Lápiz', 'B', Pencil),
+  def('highlighter', 'Resaltador', 'M', Highlighter),
   def('eraser', 'Goma', 'E', Eraser),
 ];
 

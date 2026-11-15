@@ -3,8 +3,8 @@ import type { BackgroundKind } from '../model/board';
 import type { Element } from '../model/element';
 import { getElementBounds } from '../model/geometry';
 import { paintBackground } from '../render/background';
-import { paintElement } from '../render/painter';
-import { computeOutline, PENCIL_OPACITY, traceOutline } from '../render/strokeOutline';
+import { paintElement, paintOrder } from '../render/painter';
+import { computeOutline, strokeOpacity, traceOutline } from '../render/strokeOutline';
 import { traceShape } from '../render/shapePath';
 import { TEXT_FONT_FAMILY, TEXT_LINE_HEIGHT } from '../render/text';
 import type { CanvasTheme } from '../render/theme';
@@ -54,7 +54,7 @@ export function renderToCanvas(
     );
   }
   ctx.setTransform(effectiveScale, 0, 0, effectiveScale, -bounds.minX * effectiveScale, -bounds.minY * effectiveScale);
-  for (const element of elements) paintElement(ctx, element, options.theme);
+  for (const element of paintOrder(elements)) paintElement(ctx, element, options.theme);
   return canvas;
 }
 
@@ -87,7 +87,7 @@ export function exportSvg(elements: readonly Element[], options: ExportOptions):
   const { theme } = options;
   const width = boundsWidth(bounds);
   const height = boundsHeight(bounds);
-  const body = elements.map((element) => elementToSvg(element, theme)).join('\n  ');
+  const body = paintOrder(elements).map((element) => elementToSvg(element, theme)).join('\n  ');
   const paper = options.withBackground
     ? `<rect x="${bounds.minX}" y="${bounds.minY}" width="${width}" height="${height}" fill="${theme.paper}"/>\n  `
     : '';
@@ -103,8 +103,11 @@ function elementToSvg(element: Element, theme: CanvasTheme): string {
     case 'stroke': {
       const path = new SvgPath();
       traceOutline(path, computeOutline(element.points, element.variant, element.size, element.pressure, true));
-      const opacity = element.variant === 'pencil' ? ` fill-opacity="${PENCIL_OPACITY}"` : '';
-      return `<path transform="${transform}" d="${path}" fill="${color}"${opacity}/>`;
+      const alpha = strokeOpacity(element.variant);
+      const opacity = alpha < 1 ? ` fill-opacity="${alpha}"` : '';
+      const blend =
+        element.variant === 'highlighter' && theme.name === 'light' ? ' style="mix-blend-mode:multiply"' : '';
+      return `<path transform="${transform}" d="${path}" fill="${color}"${opacity}${blend}/>`;
     }
     case 'shape': {
       const path = new SvgPath();

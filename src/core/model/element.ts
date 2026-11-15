@@ -17,7 +17,7 @@ interface BaseElement {
   readonly size: number;
 }
 
-export type StrokeVariant = 'pen' | 'pencil';
+export type StrokeVariant = 'pen' | 'pencil' | 'highlighter';
 
 export interface StrokeElement extends BaseElement {
   readonly type: 'stroke';

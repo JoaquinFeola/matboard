@@ -26,9 +26,22 @@ const VARIANT_OPTIONS: Record<StrokeVariant, Omit<StrokeOptions, 'size' | 'simul
     start: { cap: true },
     end: { cap: true },
   },
+  // Resaltador: ancho constante, como un marcador.
+  highlighter: {
+    thinning: 0,
+    smoothing: 0.5,
+    streamline: 0.55,
+    start: { cap: true },
+    end: { cap: true },
+  },
 };
 
 export const PENCIL_OPACITY = 0.88;
+export const HIGHLIGHTER_OPACITY = 0.38;
+
+/** Opacidad de relleno según la variante. */
+export const strokeOpacity = (variant: StrokeVariant): number =>
+  variant === 'pencil' ? PENCIL_OPACITY : variant === 'highlighter' ? HIGHLIGHTER_OPACITY : 1;
 
 /** Convierte puntos planos [x,y,p,...] en la lista que espera perfect-freehand. */
 function toInputPoints(points: readonly number[]): number[][] {

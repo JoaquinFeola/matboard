@@ -1,5 +1,5 @@
 import type { Element, ShapeElement, StrokeElement, TextElement } from '../model/element';
-import { computeOutline, PENCIL_OPACITY, traceOutline } from './strokeOutline';
+import { computeOutline, strokeOpacity, traceOutline } from './strokeOutline';
 import { traceShape } from './shapePath';
 import { fontFor, TEXT_LINE_HEIGHT } from './text';
 import type { CanvasTheme } from './theme';
@@ -43,9 +43,27 @@ export function paintElement(ctx: Ctx, element: Element, theme: CanvasTheme): vo
 }
 
 function paintStroke(ctx: Ctx, stroke: StrokeElement, theme: CanvasTheme): void {
-  ctx.fillStyle = theme.mapColor(stroke.color);
-  if (stroke.variant === 'pencil') ctx.globalAlpha = PENCIL_OPACITY;
+  applyStrokeStyle(ctx, stroke, theme);
   ctx.fill(strokePath(stroke));
+}
+
+/** Color, opacidad y mezcla del trazo. El resaltador multiplica en tema claro, como tinta real. */
+function applyStrokeStyle(
+  ctx: Ctx,
+  stroke: Pick<StrokeElement, 'variant' | 'color'>,
+  theme: CanvasTheme,
+): void {
+  ctx.fillStyle = theme.mapColor(stroke.color);
+  ctx.globalAlpha = strokeOpacity(stroke.variant);
+  if (stroke.variant === 'highlighter' && theme.name === 'light') {
+    ctx.globalCompositeOperation = 'multiply';
+  }
+}
+
+/** Orden de pintado: los resaltados van debajo de todo lo demás. */
+export function paintOrder(elements: readonly Element[]): Element[] {
+  const isHighlight = (e: Element) => e.type === 'stroke' && e.variant === 'highlighter';
+  return [...elements.filter(isHighlight), ...elements.filter((e) => !isHighlight(e))];
 }
 
 /** Pinta un trazo que todavía se está dibujando (sin caché). */
@@ -58,8 +76,7 @@ export function paintLiveStroke(
   const path = new Path2D();
   traceOutline(path, computeOutline(points, stroke.variant, stroke.size, stroke.pressure, false));
   ctx.save();
-  ctx.fillStyle = theme.mapColor(stroke.color);
-  if (stroke.variant === 'pencil') ctx.globalAlpha = PENCIL_OPACITY;
+  applyStrokeStyle(ctx, stroke, theme);
   ctx.fill(path);
   ctx.restore();
 }

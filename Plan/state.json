@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updated": "2026-11-15T01:40:00Z",
+  "updated": "2026-11-15T00:56:47Z",
   "goal": "Matboard entrega 2: resaltador, copiar/pegar, manijas, menos RAM, PDF e imagenes",
   "cadence": "delivery",
   "slices": [
@@ -16,12 +16,12 @@
             {
               "id": 21,
               "do": "Primer commit en git de la entrega 1 aceptada",
-              "status": "doing"
+              "status": "done"
             },
             {
               "id": 22,
               "do": "Resaltador: trazo translucido debajo de la tinta (tecla M)",
-              "status": "todo"
+              "status": "doing"
             },
             {
               "id": 23,

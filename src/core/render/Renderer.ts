@@ -3,7 +3,7 @@ import { expand } from '../math/bounds';
 import type { BackgroundKind } from '../model/board';
 import type { Scene } from '../scene/Scene';
 import { paintBackground } from './background';
-import { paintElement } from './painter';
+import { paintElement, paintOrder } from './painter';
 import type { CanvasTheme } from './theme';
 
 export interface RendererSource {
@@ -114,7 +114,7 @@ export class Renderer {
     this.applyWorldTransform(ctx);
     const visible = expand(camera.visibleBounds(), 2 / camera.zoom);
     const hidden = this.source.hidden();
-    for (const element of scene.query(visible)) {
+    for (const element of paintOrder(scene.query(visible))) {
       if (element.id !== hidden) paintElement(ctx, element, theme);
     }
   }

@@ -6,6 +6,7 @@ const TOOL_KEYS: Record<string, ToolId> = {
   h: 'hand',
   p: 'pen',
   b: 'pencil',
+  m: 'highlighter',
   e: 'eraser',
   r: 'rect',
   o: 'ellipse',

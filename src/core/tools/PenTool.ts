@@ -1,7 +1,7 @@
 import { AddElements } from '../history/commands';
 import { round } from '../math/vec';
 import { STROKE_POINT_STRIDE, type StrokeElement, type StrokeVariant } from '../model/element';
-import { SIZE_TABLE } from '../model/palette';
+import { HIGHLIGHTER_DEFAULT, INK, SIZE_TABLE } from '../model/palette';
 import { paintLiveStroke } from '../render/painter';
 import { createId } from '../util/id';
 import type { Tool, ToolHost, ToolPointer } from './types';
@@ -9,7 +9,7 @@ import type { Tool, ToolHost, ToolPointer } from './types';
 /** Distancia mínima entre muestras, en píxeles de pantalla. Filtra ruido sin perder detalle. */
 const MIN_SAMPLE_DISTANCE_PX = 0.4;
 
-/** Pluma y lápiz: misma mecánica, distinto perfil de trazo. */
+/** Pluma, lápiz y resaltador: misma mecánica, distinto perfil de trazo. */
 export class PenTool implements Tool {
   readonly cursor = 'crosshair';
   private points: number[] = [];
@@ -17,7 +17,7 @@ export class PenTool implements Tool {
   private drawing = false;
 
   constructor(
-    readonly id: 'pen' | 'pencil',
+    readonly id: StrokeVariant,
     private readonly host: ToolHost,
   ) {}
 
@@ -55,13 +55,18 @@ export class PenTool implements Tool {
 
   paintOverlay(ctx: CanvasRenderingContext2D): void {
     if (!this.drawing || this.points.length === 0) return;
-    const { color } = this.host.style();
+    const color = this.color();
     paintLiveStroke(
       ctx,
       this.points,
       { variant: this.variant, size: this.size(), color, pressure: this.hasPressure },
       this.host.theme(),
     );
+  }
+
+  private color(): string {
+    const { color } = this.host.style();
+    return this.variant === 'highlighter' && color === INK ? HIGHLIGHTER_DEFAULT : color;
   }
 
   private size(): number {
@@ -102,7 +107,7 @@ export class PenTool implements Tool {
       relative[i + 1] = round(pts[i + 1] - minY);
       relative[i + 2] = round(pts[i + 2], 3);
     }
-    const { color } = this.host.style();
+    const color = this.color();
     return {
       id: createId(),
       type: 'stroke',

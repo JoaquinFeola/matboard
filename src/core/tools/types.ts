@@ -12,6 +12,7 @@ export type ToolId =
   | 'hand'
   | 'pen'
   | 'pencil'
+  | 'highlighter'
   | 'eraser'
   | 'rect'
   | 'ellipse'

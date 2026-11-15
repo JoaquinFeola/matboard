@@ -8,7 +8,7 @@ import { Dialog } from '@/ui/Dialog';
 
 const SHORTCUTS: readonly [string, string][] = [
   ['Seleccionar / Mano', 'V / H'],
-  ['Pluma / Lápiz / Goma', 'P / B / E'],
+  ['Pluma / Lápiz / Resaltador / Goma', 'P / B / M / E'],
   ['Rectángulo / Elipse / Línea / Flecha', 'R / O / L / A'],
   ['Texto', 'T'],
   ['Mover la vista', 'Espacio + arrastrar'],

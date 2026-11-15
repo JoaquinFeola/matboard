@@ -83,6 +83,7 @@ export class Editor implements ToolHost, InputTarget {
       hand: new HandTool(this),
       pen: new PenTool('pen', this),
       pencil: new PenTool('pencil', this),
+      highlighter: new PenTool('highlighter', this),
       eraser: new EraserTool(this),
       rect: new ShapeTool('rect', this),
       ellipse: new ShapeTool('ellipse', this),

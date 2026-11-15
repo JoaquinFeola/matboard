@@ -54,7 +54,7 @@ function isElement(value: unknown): value is Element {
   if (!common) return false;
   switch (value.type) {
     case 'stroke':
-      return Array.isArray(value.points) && (value.variant === 'pen' || value.variant === 'pencil');
+      return Array.isArray(value.points) && ['pen', 'pencil', 'highlighter'].includes(value.variant as string);
     case 'shape':
       return ['rect', 'ellipse', 'line', 'arrow'].includes(value.shape as string);
     case 'text':
