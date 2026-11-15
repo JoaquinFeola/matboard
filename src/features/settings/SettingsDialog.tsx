@@ -15,6 +15,8 @@ const SHORTCUTS: readonly [string, string][] = [
   ['Deshacer / Rehacer', 'Ctrl+Z / Ctrl+Y'],
   ['Borrar selección', 'Supr'],
   ['Seleccionar todo', 'Ctrl+A'],
+  ['Copiar / Cortar / Pegar', 'Ctrl+C / Ctrl+X / Ctrl+V'],
+  ['Duplicar', 'Ctrl+D'],
   ['Acercar / Alejar / 100%', 'Ctrl + / Ctrl − / Ctrl 0'],
   ['Ver todo', 'Shift+1'],
   ['Nueva pizarra (inicio)', 'Ctrl+N'],

@@ -42,7 +42,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
 }
 
-function isElement(value: unknown): value is Element {
+export function isElement(value: unknown): value is Element {
   if (!isRecord(value)) return false;
   const common =
     typeof value.id === 'string' &&

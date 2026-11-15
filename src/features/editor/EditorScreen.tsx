@@ -8,6 +8,7 @@ import { boardRepository } from '@/storage/platform';
 import { Button } from '@/ui/Button';
 import { createAutosave } from './autosave';
 import { CanvasView } from './CanvasView';
+import { attachClipboard } from './clipboardActions';
 import { exportBoard, type ExportRequest } from './exportBoard';
 import { TextEditorOverlay } from './TextEditorOverlay';
 import { Toolbar } from './toolbar/Toolbar';
@@ -63,6 +64,7 @@ function BoardEditor(props: EditorScreenProps & { doc: BoardDocument }) {
     handleEditorShortcut(editor, e);
   };
   window.addEventListener('keydown', onKeyDown);
+  onCleanup(attachClipboard(editor));
 
   onCleanup(() => {
     window.removeEventListener('keydown', onKeyDown);

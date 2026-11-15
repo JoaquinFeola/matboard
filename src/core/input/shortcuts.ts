@@ -25,6 +25,7 @@ export function handleEditorShortcut(editor: Editor, e: KeyboardEvent): boolean 
     if (key === 'z' && !e.shiftKey) return run(e, () => editor.undo());
     if ((key === 'z' && e.shiftKey) || key === 'y') return run(e, () => editor.redo());
     if (key === 'a') return run(e, () => editor.selectAll());
+    if (key === 'd') return run(e, () => editor.duplicateSelected());
     if (key === '=' || key === '+') return run(e, () => editor.zoomIn());
     if (key === '-') return run(e, () => editor.zoomOut());
     if (key === '0') return run(e, () => editor.resetZoom());

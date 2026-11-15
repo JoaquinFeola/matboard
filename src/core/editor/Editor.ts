@@ -2,7 +2,8 @@ import { Camera } from '../camera/Camera';
 import { History } from '../history/History';
 import { AddElements, RemoveElements, UpdateElements, type Command } from '../history/commands';
 import { InputController, type InputSettings, type InputTarget } from '../input/InputController';
-import { expand, unionAll } from '../math/bounds';
+import { expand, isEmpty, unionAll } from '../math/bounds';
+import type { Point } from '../math/vec';
 import { round } from '../math/vec';
 import type { BackgroundKind } from '../model/board';
 import { updateElement, type Element, type ElementId, type TextElement } from '../model/element';
@@ -21,6 +22,7 @@ import { TextTool } from '../tools/TextTool';
 import type { CurrentStyle, TextEditRequest, Tool, ToolHost, ToolId, ToolPointer } from '../tools/types';
 import { createId } from '../util/id';
 import { Emitter } from '../util/emitter';
+import { cloneElements } from './clipboard';
 import { Selection } from './Selection';
 
 /** Lo que la UI necesita mostrar. */
@@ -71,6 +73,8 @@ export class Editor implements ToolHost, InputTarget {
   private surface: HTMLElement | null = null;
   private editingTextId: ElementId | null = null;
   private textClosedAt = -Infinity;
+  /** Última posición del puntero sobre el lienzo (para pegar ahí). */
+  private lastPointer: Point | null = null;
   private suppressContent = false;
   private readonly disposers: (() => void)[] = [];
 
@@ -241,6 +245,36 @@ export class Editor implements ToolHost, InputTarget {
     this.selection.clear();
   }
 
+  /** Duplica la selección al lado y deja seleccionadas las copias. */
+  duplicateSelected(): void {
+    const selected = this.selectedElements();
+    if (selected.length === 0) return;
+    const offset = DUPLICATE_OFFSET / this.camera.zoom;
+    this.insertCopies(cloneElements(selected, offset, offset, this.scene.nextZ()));
+  }
+
+  /** Pega elementos centrados en el puntero (o en el centro de la vista). */
+  pasteElements(elements: readonly Element[]): void {
+    if (elements.length === 0) return;
+    const bounds = unionAll(elements.map(getElementBounds));
+    if (isEmpty(bounds)) return;
+    const visible = this.camera.visibleBounds();
+    const target = this.lastPointer ?? {
+      x: (visible.minX + visible.maxX) / 2,
+      y: (visible.minY + visible.maxY) / 2,
+    };
+    const dx = target.x - (bounds.minX + bounds.maxX) / 2;
+    const dy = target.y - (bounds.minY + bounds.maxY) / 2;
+    this.insertCopies(cloneElements(elements, dx, dy, this.scene.nextZ()));
+  }
+
+  private insertCopies(copies: Element[]): void {
+    this.cancelGesture();
+    this.execute(new AddElements(copies));
+    this.setTool('select');
+    this.selection.set(copies.map((e) => e.id));
+  }
+
   selectedElements(): Element[] {
     return [...this.selection.current]
       .map((id) => this.scene.get(id))
@@ -340,11 +374,13 @@ export class Editor implements ToolHost, InputTarget {
   }
 
   routeDown(pointer: ToolPointer, override: 'hand' | 'eraser' | null): void {
+    this.lastPointer = pointer.world;
     this.gestureTool = override ? this.tools[override] : this.activeTool;
     this.gestureTool.pointerDown(pointer);
   }
 
   routeMove(pointer: ToolPointer, isDown: boolean): void {
+    this.lastPointer = pointer.world;
     const tool = isDown ? this.gestureTool : this.activeTool;
     if (!isDown && this.controller?.isSpaceHeld) {
       this.setCursor('grab');
@@ -412,6 +448,9 @@ export class Editor implements ToolHost, InputTarget {
     this.events.emit('state', this.state);
   }
 }
+
+/** Separación de un duplicado respecto del original, en píxeles de pantalla. */
+const DUPLICATE_OFFSET = 20;
 
 /** Aplica el tamaño elegido según el tipo de elemento. */
 function resizeElement(element: Element, sizeKey: SizeKey): Element {
