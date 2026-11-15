@@ -1,6 +1,7 @@
 import { Monitor, Moon, Sun } from 'lucide-solid';
-import { For, type JSX } from 'solid-js';
+import { For, Show, type JSX } from 'solid-js';
 import { BACKGROUND_KINDS } from '@/core/model/board';
+import { useLowMemorySetting } from '@/state/lowMemory';
 import { settings, updateSettings } from '@/state/settings';
 import { BackgroundSwatch, BACKGROUND_LABELS } from '@/ui/BackgroundSwatch';
 import { Segmented } from '@/ui/Button';
@@ -23,6 +24,7 @@ const SHORTCUTS: readonly [string, string][] = [
 ];
 
 export function SettingsDialog(props: { open: boolean; onClose: () => void }) {
+  const lowMemory = useLowMemorySetting();
   return (
     <Dialog open={props.open} title="Configuración" onClose={props.onClose} width="max-w-lg">
       <div class="flex flex-col gap-5">
@@ -74,6 +76,19 @@ export function SettingsDialog(props: { open: boolean; onClose: () => void }) {
             </For>
           </div>
         </Row>
+
+        <Show when={lowMemory.available}>
+          <Row label="Ahorro de memoria" hint="Usa ~80 MB menos sin aceleración gráfica; el zoom es menos fluido. Se aplica al reiniciar.">
+            <Segmented
+              value={lowMemory.enabled() ? 'on' : 'off'}
+              onChange={(value) => void lowMemory.setEnabled(value === 'on')}
+              options={[
+                { value: 'off', label: 'No' },
+                { value: 'on', label: 'Sí' },
+              ]}
+            />
+          </Row>
+        </Show>
 
         <div>
           <h3 class="mb-2 text-[13px] font-semibold">Atajos de teclado</h3>

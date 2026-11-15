@@ -17,7 +17,9 @@
         "height": 800,
         "minWidth": 720,
         "minHeight": 480,
-        "dragDropEnabled": false
+        "dragDropEnabled": false,
+        "label": "main",
+        "create": false
       }
     ],
     "security": {
@@ -26,7 +28,10 @@
   },
   "bundle": {
     "active": true,
-    "targets": ["nsis", "msi"],
+    "targets": [
+      "nsis",
+      "msi"
+    ],
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",

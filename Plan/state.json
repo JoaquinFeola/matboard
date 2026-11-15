@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updated": "2026-11-15T01:02:08Z",
+  "updated": "2026-11-15T01:14:49Z",
   "goal": "Matboard entrega 2: resaltador, copiar/pegar, manijas, menos RAM, PDF e imagenes",
   "cadence": "delivery",
   "slices": [
@@ -58,16 +58,16 @@
     {
       "id": "S9",
       "name": "Menos RAM",
-      "status": "doing",
+      "status": "done",
       "phases": [
         {
           "name": "build",
-          "status": "doing",
+          "status": "done",
           "units": [
             {
               "id": 26,
               "do": "Probar argumentos de WebView2, medir build release antes/despues y quedarse con lo que baje sin perder fluidez",
-              "status": "doing"
+              "status": "done"
             }
           ]
         }
@@ -76,16 +76,16 @@
     {
       "id": "S10",
       "name": "Imagenes y PDF",
-      "status": "todo",
+      "status": "doing",
       "phases": [
         {
           "name": "build",
-          "status": "todo",
+          "status": "doing",
           "units": [
             {
               "id": 27,
               "do": "Pegar y arrastrar imagenes a la pizarra (guardadas como archivos aparte)",
-              "status": "todo"
+              "status": "doing"
             },
             {
               "id": 28,
