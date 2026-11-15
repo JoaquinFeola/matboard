@@ -92,10 +92,39 @@ pub fn save_export(path: String, base64: String) -> CmdResult<()> {
     let allowed = Path::new(&path)
         .extension()
         .and_then(|e| e.to_str())
-        .is_some_and(|e| matches!(e.to_ascii_lowercase().as_str(), "png" | "svg"));
+        .is_some_and(|e| matches!(e.to_ascii_lowercase().as_str(), "png" | "svg" | "pdf"));
     if !allowed {
-        return Err("solo se pueden exportar archivos .png o .svg".into());
+        return Err("solo se pueden exportar archivos .png, .svg o .pdf".into());
     }
     let bytes = STANDARD.decode(base64).map_err(|e| e.to_string())?;
     fs::write(path, bytes).map_err(|e| e.to_string())
+}
+
+// ── Imágenes ───────────────────────────────────────────────────────────
+// Carpeta común `boards/assets/<id>.img`. El id es un hash del contenido, así
+// la misma imagen pegada en varias pizarras se guarda una sola vez.
+
+fn assets_dir(app: &AppHandle) -> CmdResult<PathBuf> {
+    let dir = boards_dir(app)?.join("assets");
+    fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
+    Ok(dir)
+}
+
+#[tauri::command]
+pub fn save_asset(app: AppHandle, id: String, base64: String) -> CmdResult<()> {
+    validate_id(&id)?;
+    let path = assets_dir(&app)?.join(format!("{id}.img"));
+    if path.exists() {
+        return Ok(());
+    }
+    let bytes = STANDARD.decode(base64).map_err(|e| e.to_string())?;
+    write_atomic(&path, &bytes)
+}
+
+/// Devuelve los bytes crudos (llegan como ArrayBuffer, sin pasar por JSON).
+#[tauri::command]
+pub fn load_asset(app: AppHandle, id: String) -> CmdResult<tauri::ipc::Response> {
+    validate_id(&id)?;
+    let bytes = fs::read(assets_dir(&app)?.join(format!("{id}.img"))).map_err(|e| e.to_string())?;
+    Ok(tauri::ipc::Response::new(bytes))
 }

@@ -14,6 +14,8 @@ pub fn run() {
             boards::save_board,
             boards::delete_board,
             boards::save_export,
+            boards::save_asset,
+            boards::load_asset,
             window::get_low_memory,
             window::set_low_memory,
         ])

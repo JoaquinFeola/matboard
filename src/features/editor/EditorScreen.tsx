@@ -1,6 +1,8 @@
 import { createEffect, createResource, createSignal, Match, onCleanup, Switch } from 'solid-js';
 import { createStore } from 'solid-js/store';
 import { Editor } from '@/core/editor/Editor';
+import { ImageCache } from '@/core/render/imageCache';
+import { assetStore } from '@/storage/AssetStore';
 import { handleEditorShortcut } from '@/core/input/shortcuts';
 import type { BackgroundKind, BoardDocument, BoardMeta } from '@/core/model/board';
 import { canvasTheme, settings } from '@/state/settings';
@@ -9,6 +11,7 @@ import { Button } from '@/ui/Button';
 import { createAutosave } from './autosave';
 import { CanvasView } from './CanvasView';
 import { attachClipboard } from './clipboardActions';
+import { importImages } from './imageImport';
 import { exportBoard, type ExportRequest } from './exportBoard';
 import { TextEditorOverlay } from './TextEditorOverlay';
 import { Toolbar } from './toolbar/Toolbar';
@@ -45,6 +48,7 @@ function BoardEditor(props: EditorScreenProps & { doc: BoardDocument }) {
     background: props.doc.meta.background,
     theme: canvasTheme(),
     input: { wheelMode: settings.wheelMode, touchMode: settings.touchMode },
+    images: new ImageCache((id) => assetStore.load(id)),
   });
   editor.load(props.doc.elements);
 
@@ -64,7 +68,21 @@ function BoardEditor(props: EditorScreenProps & { doc: BoardDocument }) {
     handleEditorShortcut(editor, e);
   };
   window.addEventListener('keydown', onKeyDown);
-  onCleanup(attachClipboard(editor));
+  const addImages = async (files: File[]) => {
+    try {
+      const count = await importImages(files, editor, assetStore);
+      if (count === 0) toast.show('Ese archivo no es una imagen');
+    } catch {
+      toast.show('No se pudo agregar la imagen', 'error');
+    }
+  };
+  onCleanup(attachClipboard(editor, { onImages: (files) => void addImages(files) }));
+
+  const onDrop = (e: DragEvent) => {
+    e.preventDefault();
+    const files = [...(e.dataTransfer?.files ?? [])];
+    if (files.length > 0) void addImages(files);
+  };
 
   onCleanup(() => {
     window.removeEventListener('keydown', onKeyDown);
@@ -104,7 +122,7 @@ function BoardEditor(props: EditorScreenProps & { doc: BoardDocument }) {
   };
 
   return (
-    <div class="relative h-full">
+    <div class="relative h-full" onDragOver={(e) => e.preventDefault()} onDrop={onDrop}>
       <CanvasView editor={editor} onReady={onCanvasReady} />
       <TextEditorOverlay editor={editor} />
       <TopBar

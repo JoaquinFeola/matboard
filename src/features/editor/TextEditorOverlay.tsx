@@ -42,10 +42,9 @@ function TextArea(props: { editor: Editor; request: TextEditRequest }) {
   onMount(() => {
     textarea.value = request.element?.text ?? '';
     autosize();
-    requestAnimationFrame(() => {
-      textarea.focus();
-      textarea.select();
-    });
+    // Foco inmediato: si se espera un cuadro, la primera tecla se pierde (o dispara un atajo).
+    textarea.focus();
+    textarea.select();
     document.addEventListener('pointerdown', onOutsidePointer, true);
   });
   onCleanup(editor.camera.onChange(setCamera));

@@ -1,4 +1,5 @@
-import type { Element, ShapeElement, StrokeElement, TextElement } from '../model/element';
+import type { Element, ImageElement, ShapeElement, StrokeElement, TextElement } from '../model/element';
+import type { ImageSource } from './imageCache';
 import { computeOutline, strokeOpacity, traceOutline } from './strokeOutline';
 import { traceShape } from './shapePath';
 import { fontFor, TEXT_LINE_HEIGHT } from './text';
@@ -25,7 +26,7 @@ function strokePath(stroke: StrokeElement): Path2D {
   return path;
 }
 
-export function paintElement(ctx: Ctx, element: Element, theme: CanvasTheme): void {
+export function paintElement(ctx: Ctx, element: Element, theme: CanvasTheme, images?: ImageSource): void {
   ctx.save();
   ctx.translate(element.x, element.y);
   if (element.angle) {
@@ -44,6 +45,9 @@ export function paintElement(ctx: Ctx, element: Element, theme: CanvasTheme): vo
       break;
     case 'text':
       paintText(ctx, element, theme);
+      break;
+    case 'image':
+      paintImage(ctx, element, theme, images);
       break;
   }
   ctx.restore();
@@ -96,6 +100,18 @@ function paintShape(ctx: Ctx, shape: ShapeElement, theme: CanvasTheme): void {
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
   ctx.stroke(path);
+}
+
+/** Mientras la imagen se carga se muestra un recuadro gris. */
+function paintImage(ctx: Ctx, image: ImageElement, theme: CanvasTheme, images?: ImageSource): void {
+  const source = images?.get(image.assetId);
+  if (source) {
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(source, 0, 0, image.w, image.h);
+    return;
+  }
+  ctx.fillStyle = theme.gridMinor;
+  ctx.fillRect(0, 0, image.w, image.h);
 }
 
 function paintText(ctx: Ctx, text: TextElement, theme: CanvasTheme): void {

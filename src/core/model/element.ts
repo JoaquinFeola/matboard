@@ -51,7 +51,15 @@ export interface TextElement extends BaseElement {
   readonly h: number;
 }
 
-export type Element = StrokeElement | ShapeElement | TextElement;
+export interface ImageElement extends BaseElement {
+  readonly type: 'image';
+  /** Archivo de la imagen en el almacén de imágenes (hash del contenido). */
+  readonly assetId: string;
+  readonly w: number;
+  readonly h: number;
+}
+
+export type Element = StrokeElement | ShapeElement | TextElement | ImageElement;
 export type ElementType = Element['type'];
 
 /** Copia el elemento con cambios. Preserva referencias (p. ej. `points`) que no cambian. */

@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updated": "2026-11-15T01:14:49Z",
+  "updated": "2026-11-15T01:20:00Z",
   "goal": "Matboard entrega 2: resaltador, copiar/pegar, manijas, menos RAM, PDF e imagenes",
   "cadence": "delivery",
   "slices": [
@@ -80,28 +80,28 @@
       "phases": [
         {
           "name": "build",
-          "status": "doing",
+          "status": "done",
           "units": [
             {
               "id": 27,
               "do": "Pegar y arrastrar imagenes a la pizarra (guardadas como archivos aparte)",
-              "status": "doing"
+              "status": "done"
             },
             {
               "id": 28,
               "do": "Exportar a PDF (libreria a verificar al empezar la unidad)",
-              "status": "todo"
+              "status": "done"
             }
           ]
         },
         {
           "name": "verify",
-          "status": "todo",
+          "status": "doing",
           "units": [
             {
               "id": 29,
               "do": "Tests nuevos + prueba en Edge + build release y medicion de RAM",
-              "status": "todo"
+              "status": "doing"
             }
           ]
         }

@@ -50,6 +50,7 @@ function getUnrotatedBounds(element: Element): Bounds {
       return expand(box, extra);
     }
     case 'text':
+    case 'image':
       return { minX: x, minY: y, maxX: x + element.w, maxY: y + element.h };
   }
 }
@@ -78,6 +79,7 @@ export function hitTestElement(element: Element, wx: number, wy: number, options
     case 'shape':
       return hitShape(element, px - element.x, py - element.y, options);
     case 'text':
+    case 'image':
       return true;
   }
 }

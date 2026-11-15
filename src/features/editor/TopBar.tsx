@@ -1,11 +1,11 @@
-import { Check, ChevronLeft, Download, FileCode, Image, Redo2, Settings, Undo2 } from 'lucide-solid';
+import { Check, ChevronLeft, Download, FileCode, FileText, Image, Redo2, Settings, Undo2 } from 'lucide-solid';
 import { createSignal, For, Show } from 'solid-js';
 import type { Editor, EditorState } from '@/core/editor/Editor';
 import { BACKGROUND_KINDS, type BackgroundKind, type BoardMeta } from '@/core/model/board';
 import { BackgroundSwatch, BACKGROUND_LABELS } from '@/ui/BackgroundSwatch';
 import { IconButton } from '@/ui/IconButton';
 import { MenuItem, Popover } from '@/ui/Popover';
-import type { ExportRequest } from './exportBoard';
+import type { ExportFormat, ExportRequest } from './exportBoard';
 
 export interface TopBarProps {
   editor: Editor;
@@ -135,7 +135,7 @@ function ExportMenu(props: { hasSelection: boolean; onExport: (request: ExportRe
       )}
     >
       {(close) => {
-        const run = (format: 'png' | 'svg') => {
+        const run = (format: ExportFormat) => {
           close();
           props.onExport({
             format,
@@ -146,6 +146,7 @@ function ExportMenu(props: { hasSelection: boolean; onExport: (request: ExportRe
         return (
           <>
             <MenuItem icon={<Image size={15} />} label="Imagen PNG" onClick={() => run('png')} />
+            <MenuItem icon={<FileText size={15} />} label="Documento PDF" onClick={() => run('pdf')} />
             <MenuItem icon={<FileCode size={15} />} label="Vector SVG" onClick={() => run('svg')} />
             <div class="my-1 h-px bg-border" />
             <Toggle label="Incluir fondo" value={withBackground()} onChange={setWithBackground} />

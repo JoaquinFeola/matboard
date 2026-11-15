@@ -44,6 +44,8 @@ function scaleGeometry(element: Element, sx: number, sy: number): Element {
         ? updateElement(element, { w: round(element.w * sx), h: round(element.h * sy) })
         : updateElement(element, { w: round(element.w * ax), h: round(element.h * ay) });
     }
+    case 'image':
+      return updateElement(element, { w: round(element.w * ax), h: round(element.h * ay) });
     case 'text': {
       const s = Math.max(ax, ay);
       return updateElement(element, {

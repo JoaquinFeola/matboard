@@ -1,10 +1,11 @@
 import { invoke } from '@tauri-apps/api/core';
 import { save } from '@tauri-apps/plugin-dialog';
+import { blobToBase64 } from './AssetStore';
 import { isTauri } from './platform';
 
 export interface FileToSave {
   name: string;
-  extension: 'png' | 'svg';
+  extension: 'png' | 'svg' | 'pdf';
   blob: Blob;
 }
 
@@ -33,13 +34,4 @@ function downloadInBrowser(file: FileToSave): void {
   link.download = `${file.name}.${file.extension}`;
   link.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
-}
-
-function blobToBase64(blob: Blob): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result).split(',')[1] ?? '');
-    reader.onerror = () => reject(reader.error);
-    reader.readAsDataURL(blob);
-  });
 }

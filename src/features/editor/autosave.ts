@@ -38,6 +38,7 @@ export function createAutosave(
       withBackground: false,
       theme: LIGHT_THEME,
       padding: 16,
+      images: editor.images,
     });
     try {
       await repository.save({

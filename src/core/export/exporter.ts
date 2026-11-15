@@ -7,6 +7,7 @@ import { paintElement, paintOrder } from '../render/painter';
 import { computeOutline, strokeOpacity, traceOutline } from '../render/strokeOutline';
 import { traceShape } from '../render/shapePath';
 import { TEXT_FONT_FAMILY, TEXT_LINE_HEIGHT } from '../render/text';
+import type { ImageSource } from '../render/imageCache';
 import type { CanvasTheme } from '../render/theme';
 import { SvgPath } from './svgPath';
 
@@ -16,6 +17,10 @@ export interface ExportOptions {
   withBackground: boolean;
   theme: CanvasTheme;
   padding?: number;
+  /** Imágenes decodificadas (PNG/miniatura). Llamar antes a `ImageCache.ensure`. */
+  images?: ImageSource;
+  /** Imagen como data URL, para incrustarla en SVG/PDF. */
+  imageDataUrl?: (assetId: string) => Promise<string | null>;
 }
 
 const DEFAULT_PADDING = 32;
@@ -54,7 +59,7 @@ export function renderToCanvas(
     );
   }
   ctx.setTransform(effectiveScale, 0, 0, effectiveScale, -bounds.minX * effectiveScale, -bounds.minY * effectiveScale);
-  for (const element of paintOrder(elements)) paintElement(ctx, element, options.theme);
+  for (const element of paintOrder(elements)) paintElement(ctx, element, options.theme, options.images);
   return canvas;
 }
 
@@ -81,13 +86,16 @@ const escapeXml = (text: string) =>
   text.replace(/[<>&"']/g, (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&apos;' })[c]!);
 
 /** SVG vectorial: los trazos se exportan como contornos rellenos, igual que en pantalla. */
-export function exportSvg(elements: readonly Element[], options: ExportOptions): string | null {
+export async function exportSvg(elements: readonly Element[], options: ExportOptions): Promise<string | null> {
   const bounds = exportBounds(elements, options.padding);
   if (!bounds) return null;
   const { theme } = options;
   const width = boundsWidth(bounds);
   const height = boundsHeight(bounds);
-  const body = paintOrder(elements).map((element) => elementToSvg(element, theme)).join('\n  ');
+  const hrefs = await imageHrefs(elements, options);
+  const body = paintOrder(elements)
+    .map((element) => elementToSvg(element, theme, hrefs))
+    .join('\n  ');
   const paper = options.withBackground
     ? `<rect x="${bounds.minX}" y="${bounds.minY}" width="${width}" height="${height}" fill="${theme.paper}"/>\n  `
     : '';
@@ -96,7 +104,18 @@ export function exportSvg(elements: readonly Element[], options: ExportOptions):
 </svg>`;
 }
 
-function elementToSvg(element: Element, theme: CanvasTheme): string {
+/** Data URL de cada imagen usada, para incrustarlas. */
+async function imageHrefs(elements: readonly Element[], options: ExportOptions): Promise<Map<string, string>> {
+  const hrefs = new Map<string, string>();
+  const ids = new Set(elements.flatMap((e) => (e.type === 'image' ? [e.assetId] : [])));
+  for (const id of ids) {
+    const href = await options.imageDataUrl?.(id);
+    if (href) hrefs.set(id, href);
+  }
+  return hrefs;
+}
+
+function elementToSvg(element: Element, theme: CanvasTheme, hrefs: Map<string, string>): string {
   const color = theme.mapColor(element.color);
   const rotation = element.angle
     ? ` rotate(${+((element.angle * 180) / Math.PI).toFixed(3)} ${element.w / 2} ${element.h / 2})`
@@ -125,6 +144,12 @@ function elementToSvg(element: Element, theme: CanvasTheme): string {
         .map((line, i) => `<tspan x="0" y="${i * lineHeight + offset}">${escapeXml(line) || ' '}</tspan>`)
         .join('');
       return `<text transform="${transform}" fill="${color}" font-size="${element.size}" font-family='${TEXT_FONT_FAMILY}' dominant-baseline="text-before-edge">${lines}</text>`;
+    }
+    case 'image': {
+      const href = hrefs.get(element.assetId);
+      return href
+        ? `<image transform="${transform}" width="${element.w}" height="${element.h}" href="${href}" preserveAspectRatio="none"/>`
+        : '';
     }
   }
 }

@@ -59,6 +59,8 @@ export function isElement(value: unknown): value is Element {
       return ['rect', 'ellipse', 'line', 'arrow'].includes(value.shape as string);
     case 'text':
       return typeof value.text === 'string';
+    case 'image':
+      return typeof value.assetId === 'string' && typeof value.w === 'number' && typeof value.h === 'number';
     default:
       return false;
   }

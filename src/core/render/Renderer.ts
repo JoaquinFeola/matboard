@@ -4,6 +4,7 @@ import type { BackgroundKind } from '../model/board';
 import type { Scene } from '../scene/Scene';
 import { paintBackground } from './background';
 import { paintElement, paintOrder } from './painter';
+import type { ImageSource } from './imageCache';
 import type { CanvasTheme } from './theme';
 
 export interface RendererSource {
@@ -11,6 +12,7 @@ export interface RendererSource {
   camera: Camera;
   background(): BackgroundKind;
   theme(): CanvasTheme;
+  images: ImageSource;
   /** Elemento que no se dibuja (p. ej. el texto que se está editando). */
   hidden(): string | null;
   /** Pinta lo efímero (trazo en curso, selección) con el contexto ya en coordenadas de mundo. */
@@ -115,7 +117,7 @@ export class Renderer {
     const visible = expand(camera.visibleBounds(), 2 / camera.zoom);
     const hidden = this.source.hidden();
     for (const element of paintOrder(scene.query(visible))) {
-      if (element.id !== hidden) paintElement(ctx, element, theme);
+      if (element.id !== hidden) paintElement(ctx, element, theme, this.source.images);
     }
   }
 

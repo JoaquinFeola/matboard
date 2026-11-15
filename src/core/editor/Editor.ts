@@ -9,6 +9,7 @@ import type { BackgroundKind } from '../model/board';
 import { updateElement, type Element, type ElementId, type TextElement } from '../model/element';
 import { getElementBounds } from '../model/geometry';
 import { INK, SIZE_TABLE, type SizeKey } from '../model/palette';
+import { ImageCache } from '../render/imageCache';
 import { Renderer } from '../render/Renderer';
 import { measureText } from '../render/text';
 import { LIGHT_THEME, type CanvasTheme } from '../render/theme';
@@ -50,6 +51,8 @@ export interface EditorOptions {
   background: BackgroundKind;
   theme?: CanvasTheme;
   input: InputSettings;
+  /** Imágenes de la pizarra; sin él, las imágenes se ven como recuadros. */
+  images?: ImageCache;
 }
 
 /**
@@ -60,6 +63,7 @@ export class Editor implements ToolHost, InputTarget {
   readonly scene = new Scene();
   readonly camera = new Camera();
   readonly selection = new Selection();
+  readonly images: ImageCache;
   private readonly history = new History(this.scene);
   private readonly events = new Emitter<EditorEvents>();
   private readonly tools: Record<ToolId, Tool>;
@@ -83,6 +87,8 @@ export class Editor implements ToolHost, InputTarget {
     this.backgroundKind = options.background;
     this.canvasTheme = options.theme ?? LIGHT_THEME;
     this.input = options.input;
+    this.images = options.images ?? new ImageCache(() => Promise.reject(new Error('sin almacén')));
+    this.images.onLoaded(() => this.renderer?.invalidateStatic());
     this.tools = {
       select: new SelectTool(this),
       hand: new HandTool(this),
@@ -127,6 +133,7 @@ export class Editor implements ToolHost, InputTarget {
       background: () => this.backgroundKind,
       theme: () => this.canvasTheme,
       hidden: () => this.editingTextId,
+      images: this.images,
       paintOverlay: (ctx) => this.paintOverlay(ctx),
     });
     this.controller = new InputController(overlayCanvas, this);
@@ -144,6 +151,7 @@ export class Editor implements ToolHost, InputTarget {
     this.controller?.destroy();
     this.disposers.forEach((dispose) => dispose());
     this.events.clear();
+    this.images.dispose();
     this.renderer = null;
     this.controller = null;
   }
@@ -252,6 +260,36 @@ export class Editor implements ToolHost, InputTarget {
     if (selected.length === 0) return;
     const offset = DUPLICATE_OFFSET / this.camera.zoom;
     this.insertCopies(cloneElements(selected, offset, offset, this.scene.nextZ()));
+  }
+
+  /**
+   * Inserta una imagen ya guardada, centrada en el puntero (o la vista) y con un
+   * tamaño que entre cómodo en pantalla.
+   */
+  insertImage(assetId: string, width: number, height: number): void {
+    const visible = this.camera.visibleBounds();
+    const maxW = (visible.maxX - visible.minX) * 0.5;
+    const maxH = (visible.maxY - visible.minY) * 0.5;
+    const scale = Math.min(1 / this.camera.zoom, maxW / width, maxH / height);
+    const w = round(width * scale);
+    const h = round(height * scale);
+    const center = this.lastPointer ?? {
+      x: (visible.minX + visible.maxX) / 2,
+      y: (visible.minY + visible.maxY) / 2,
+    };
+    const element: Element = {
+      id: createId(),
+      type: 'image',
+      assetId,
+      x: round(center.x - w / 2),
+      y: round(center.y - h / 2),
+      z: this.scene.nextZ(),
+      color: INK,
+      size: 0,
+      w,
+      h,
+    };
+    this.insertCopies([element]);
   }
 
   /** Pega elementos centrados en el puntero (o en el centro de la vista). */
@@ -444,6 +482,8 @@ function resizeElement(element: Element, sizeKey: SizeKey): Element {
       return updateElement(element, { size: SIZE_TABLE[element.variant][sizeKey] });
     case 'shape':
       return updateElement(element, { size: SIZE_TABLE.shape[sizeKey] });
+    case 'image':
+      return element;
     case 'text': {
       const size = SIZE_TABLE.text[sizeKey];
       return updateElement(element, { size, ...measureText(element.text, size) });
