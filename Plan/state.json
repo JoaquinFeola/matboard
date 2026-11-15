@@ -1,17 +1,17 @@
 {
   "version": 2,
-  "updated": "2026-11-15T00:57:52Z",
+  "updated": "2026-11-15T01:02:08Z",
   "goal": "Matboard entrega 2: resaltador, copiar/pegar, manijas, menos RAM, PDF e imagenes",
   "cadence": "delivery",
   "slices": [
     {
       "id": "S7",
       "name": "Base segura y uso diario",
-      "status": "doing",
+      "status": "done",
       "phases": [
         {
           "name": "build",
-          "status": "doing",
+          "status": "done",
           "units": [
             {
               "id": 21,
@@ -26,7 +26,7 @@
             {
               "id": 23,
               "do": "Copiar, pegar y duplicar elementos (Ctrl+C/V/D) con desplazamiento",
-              "status": "doing"
+              "status": "done"
             }
           ]
         }
@@ -35,21 +35,21 @@
     {
       "id": "S8",
       "name": "Redimensionar y rotar",
-      "status": "todo",
+      "status": "done",
       "phases": [
         {
           "name": "build",
-          "status": "todo",
+          "status": "done",
           "units": [
             {
               "id": 24,
               "do": "Manijas en la seleccion para redimensionar (Shift = proporcion)",
-              "status": "todo"
+              "status": "done"
             },
             {
               "id": 25,
               "do": "Manija de rotacion: rotacion en el modelo, render, choque y exportacion",
-              "status": "todo"
+              "status": "done"
             }
           ]
         }
@@ -58,16 +58,16 @@
     {
       "id": "S9",
       "name": "Menos RAM",
-      "status": "todo",
+      "status": "doing",
       "phases": [
         {
           "name": "build",
-          "status": "todo",
+          "status": "doing",
           "units": [
             {
               "id": 26,
               "do": "Probar argumentos de WebView2, medir build release antes/despues y quedarse con lo que baje sin perder fluidez",
-              "status": "todo"
+              "status": "doing"
             }
           ]
         }

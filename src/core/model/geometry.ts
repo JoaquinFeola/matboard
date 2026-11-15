@@ -1,5 +1,5 @@
 import { containsPoint, expand, intersects, type Bounds } from '../math/bounds';
-import { distanceToSegment } from '../math/vec';
+import { distanceToSegment, rotatePoint, type Point } from '../math/vec';
 import {
   STROKE_POINT_STRIDE,
   type Element,
@@ -7,8 +7,33 @@ import {
   type StrokeElement,
 } from './element';
 
-/** Límites en mundo, incluyendo el grosor del trazo. */
+/** Centro de la caja local del elemento, en mundo (pivote de su rotación). */
+export function elementCenter(element: Element): Point {
+  return { x: element.x + element.w / 2, y: element.y + element.h / 2 };
+}
+
+/** Límites en mundo, incluyendo el grosor del trazo y la rotación. */
 export function getElementBounds(element: Element): Bounds {
+  const local = getUnrotatedBounds(element);
+  const angle = element.angle ?? 0;
+  if (angle === 0) return local;
+  const c = elementCenter(element);
+  const corners = [
+    rotatePoint(local.minX, local.minY, c.x, c.y, angle),
+    rotatePoint(local.maxX, local.minY, c.x, c.y, angle),
+    rotatePoint(local.maxX, local.maxY, c.x, c.y, angle),
+    rotatePoint(local.minX, local.maxY, c.x, c.y, angle),
+  ];
+  return {
+    minX: Math.min(...corners.map((p) => p.x)),
+    minY: Math.min(...corners.map((p) => p.y)),
+    maxX: Math.max(...corners.map((p) => p.x)),
+    maxY: Math.max(...corners.map((p) => p.y)),
+  };
+}
+
+/** Límites sin rotar (en el marco del elemento, ubicado en mundo). */
+function getUnrotatedBounds(element: Element): Bounds {
   const { x, y } = element;
   switch (element.type) {
     case 'stroke':
@@ -36,8 +61,17 @@ export interface HitOptions {
   includeInterior: boolean;
 }
 
-export function hitTestElement(element: Element, px: number, py: number, options: HitOptions): boolean {
-  if (!containsPoint(expand(getElementBounds(element), options.tolerance), px, py)) return false;
+/** Lleva un punto del mundo al marco sin rotar del elemento. */
+function toUnrotated(element: Element, px: number, py: number): Point {
+  const angle = element.angle ?? 0;
+  if (angle === 0) return { x: px, y: py };
+  const c = elementCenter(element);
+  return rotatePoint(px, py, c.x, c.y, -angle);
+}
+
+export function hitTestElement(element: Element, wx: number, wy: number, options: HitOptions): boolean {
+  const { x: px, y: py } = toUnrotated(element, wx, wy);
+  if (!containsPoint(expand(getUnrotatedBounds(element), options.tolerance), px, py)) return false;
   switch (element.type) {
     case 'stroke':
       return hitStroke(element, px - element.x, py - element.y, options.tolerance);
@@ -105,8 +139,14 @@ export function elementTouchesRect(element: Element, rect: Bounds): boolean {
   if (!intersects(getElementBounds(element), rect)) return false;
   if (element.type !== 'stroke') return true;
   const { points, x, y } = element;
+  const angle = element.angle ?? 0;
+  const c = elementCenter(element);
   for (let i = 0; i < points.length; i += STROKE_POINT_STRIDE) {
-    if (containsPoint(rect, x + points[i], y + points[i + 1])) return true;
+    const p =
+      angle === 0
+        ? { x: x + points[i], y: y + points[i + 1] }
+        : rotatePoint(x + points[i], y + points[i + 1], c.x, c.y, angle);
+    if (containsPoint(rect, p.x, p.y)) return true;
   }
   return false;
 }

@@ -2,7 +2,7 @@ import { Camera } from '../camera/Camera';
 import { History } from '../history/History';
 import { AddElements, RemoveElements, UpdateElements, type Command } from '../history/commands';
 import { InputController, type InputSettings, type InputTarget } from '../input/InputController';
-import { expand, isEmpty, unionAll } from '../math/bounds';
+import { isEmpty, unionAll } from '../math/bounds';
 import type { Point } from '../math/vec';
 import { round } from '../math/vec';
 import type { BackgroundKind } from '../model/board';
@@ -23,6 +23,7 @@ import type { CurrentStyle, TextEditRequest, Tool, ToolHost, ToolId, ToolPointer
 import { createId } from '../util/id';
 import { Emitter } from '../util/emitter';
 import { cloneElements } from './clipboard';
+import { paintSelectionFrame } from './handles';
 import { Selection } from './Selection';
 
 /** Lo que la UI necesita mostrar. */
@@ -423,25 +424,9 @@ export class Editor implements ToolHost, InputTarget {
   }
 
   private paintSelection(ctx: CanvasRenderingContext2D): void {
-    const selected = this.selectedElements();
-    if (selected.length === 0) return;
-    const zoom = this.camera.zoom;
-    const pad = 4 / zoom;
-    ctx.lineWidth = 1 / zoom;
-    ctx.strokeStyle = this.canvasTheme.selection;
-    if (selected.length > 1) {
-      ctx.setLineDash([4 / zoom, 3 / zoom]);
-      for (const element of selected) {
-        const b = expand(getElementBounds(element), pad / 2);
-        ctx.strokeRect(b.minX, b.minY, b.maxX - b.minX, b.maxY - b.minY);
-      }
-      ctx.setLineDash([]);
-    }
-    const all = expand(unionAll(selected.map(getElementBounds)), pad);
-    ctx.fillStyle = this.canvasTheme.selectionFill;
-    ctx.fillRect(all.minX, all.minY, all.maxX - all.minX, all.maxY - all.minY);
-    ctx.lineWidth = 1.5 / zoom;
-    ctx.strokeRect(all.minX, all.minY, all.maxX - all.minX, all.maxY - all.minY);
+    const select = this.tools.select as SelectTool;
+    const withHandles = this.activeTool === select && !select.isTransforming && !this.gestureTool;
+    paintSelectionFrame(ctx, this.selectedElements(), this.camera.zoom, this.canvasTheme, withHandles);
   }
 
   private emitState(): void {

@@ -28,6 +28,13 @@ function strokePath(stroke: StrokeElement): Path2D {
 export function paintElement(ctx: Ctx, element: Element, theme: CanvasTheme): void {
   ctx.save();
   ctx.translate(element.x, element.y);
+  if (element.angle) {
+    const cx = element.w / 2;
+    const cy = element.h / 2;
+    ctx.translate(cx, cy);
+    ctx.rotate(element.angle);
+    ctx.translate(-cx, -cy);
+  }
   switch (element.type) {
     case 'stroke':
       paintStroke(ctx, element, theme);

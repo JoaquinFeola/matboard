@@ -15,6 +15,8 @@ interface BaseElement {
   readonly color: string;
   /** Grosor del trazo (o tamaño de letra en texto), en unidades de mundo. */
   readonly size: number;
+  /** Rotación en radianes alrededor del centro de su caja local. Ausente = 0. */
+  readonly angle?: number;
 }
 
 export type StrokeVariant = 'pen' | 'pencil' | 'highlighter';

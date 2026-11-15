@@ -98,7 +98,10 @@ export function exportSvg(elements: readonly Element[], options: ExportOptions):
 
 function elementToSvg(element: Element, theme: CanvasTheme): string {
   const color = theme.mapColor(element.color);
-  const transform = `translate(${element.x} ${element.y})`;
+  const rotation = element.angle
+    ? ` rotate(${+((element.angle * 180) / Math.PI).toFixed(3)} ${element.w / 2} ${element.h / 2})`
+    : '';
+  const transform = `translate(${element.x} ${element.y})${rotation}`;
   switch (element.type) {
     case 'stroke': {
       const path = new SvgPath();

@@ -29,6 +29,15 @@ export function snapToAngle(dx: number, dy: number, stepRad = Math.PI / 4): Poin
   return { x: Math.cos(angle) * length, y: Math.sin(angle) * length };
 }
 
+/** Rota (x, y) alrededor de (cx, cy). */
+export function rotatePoint(x: number, y: number, cx: number, cy: number, angle: number): Point {
+  const cos = Math.cos(angle);
+  const sin = Math.sin(angle);
+  const dx = x - cx;
+  const dy = y - cy;
+  return { x: cx + dx * cos - dy * sin, y: cy + dx * sin + dy * cos };
+}
+
 export const round = (value: number, decimals = 2): number => {
   const factor = 10 ** decimals;
   return Math.round(value * factor) / factor;
