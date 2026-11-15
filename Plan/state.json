@@ -1,0 +1,133 @@
+{
+  "version": 2,
+  "updated": "2026-11-15T01:40:00Z",
+  "goal": "Matboard entrega 2: resaltador, copiar/pegar, manijas, menos RAM, PDF e imagenes",
+  "cadence": "delivery",
+  "slices": [
+    {
+      "id": "S7",
+      "name": "Base segura y uso diario",
+      "status": "doing",
+      "phases": [
+        {
+          "name": "build",
+          "status": "doing",
+          "units": [
+            {
+              "id": 21,
+              "do": "Primer commit en git de la entrega 1 aceptada",
+              "status": "doing"
+            },
+            {
+              "id": 22,
+              "do": "Resaltador: trazo translucido debajo de la tinta (tecla M)",
+              "status": "todo"
+            },
+            {
+              "id": 23,
+              "do": "Copiar, pegar y duplicar elementos (Ctrl+C/V/D) con desplazamiento",
+              "status": "todo"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "S8",
+      "name": "Redimensionar y rotar",
+      "status": "todo",
+      "phases": [
+        {
+          "name": "build",
+          "status": "todo",
+          "units": [
+            {
+              "id": 24,
+              "do": "Manijas en la seleccion para redimensionar (Shift = proporcion)",
+              "status": "todo"
+            },
+            {
+              "id": 25,
+              "do": "Manija de rotacion: rotacion en el modelo, render, choque y exportacion",
+              "status": "todo"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "S9",
+      "name": "Menos RAM",
+      "status": "todo",
+      "phases": [
+        {
+          "name": "build",
+          "status": "todo",
+          "units": [
+            {
+              "id": 26,
+              "do": "Probar argumentos de WebView2, medir build release antes/despues y quedarse con lo que baje sin perder fluidez",
+              "status": "todo"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "S10",
+      "name": "Imagenes y PDF",
+      "status": "todo",
+      "phases": [
+        {
+          "name": "build",
+          "status": "todo",
+          "units": [
+            {
+              "id": 27,
+              "do": "Pegar y arrastrar imagenes a la pizarra (guardadas como archivos aparte)",
+              "status": "todo"
+            },
+            {
+              "id": 28,
+              "do": "Exportar a PDF (libreria a verificar al empezar la unidad)",
+              "status": "todo"
+            }
+          ]
+        },
+        {
+          "name": "verify",
+          "status": "todo",
+          "units": [
+            {
+              "id": 29,
+              "do": "Tests nuevos + prueba en Edge + build release y medicion de RAM",
+              "status": "todo"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "approved": true,
+  "delegation": "ask",
+  "autonomy": {
+    "units": [
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29
+    ],
+    "keep_stops": []
+  },
+  "waiting_on": null,
+  "notes": [
+    "QT-05: el usuario eligio las 4 opciones",
+    "RAM entrega 1: 183 MB privados en reposo (TD-01)",
+    "Aprobado 2026-11-15 ('sigamos'); autonomia 21-29; GitHub opcional, el usuario pasara URL si quiere remoto"
+  ]
+}
