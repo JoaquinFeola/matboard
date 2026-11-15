@@ -16,11 +16,13 @@ UI (Solid)  ──▶  Editor (fachada)  ──▶  Tools ──▶ Commands ─
 
 ## Modelo de datos
 ```ts
-type Element = StrokeElement | ShapeElement | TextElement
-// Comunes: id, x, y (posición en mundo), color, size, opacity
-StrokeElement { type:'stroke', variant:'pen'|'pencil', points: number[] /* x,y,p relativos */, pressure: boolean }
+type Element = StrokeElement | ShapeElement | TextElement | ImageElement
+// Comunes: id, x, y (posición en mundo), z, color, size, angle?
+StrokeElement { type:'stroke', variant:'pen'|'pencil'|'highlighter', points: number[] /* x,y,p relativos */, pressure: boolean }
 ShapeElement  { type:'shape', shape:'rect'|'ellipse'|'line'|'arrow', w, h }
 TextElement   { type:'text', text, fontSize }
+ImageElement  { type:'image', assetId, w, h }
+// Opcional en todos: angle (radianes, alrededor del centro de su caja local)
 ```
 Los puntos son **relativos a (x, y)**: mover un elemento solo cambia x, y; su `Path2D`
 cacheado sigue sirviendo.
@@ -39,8 +41,20 @@ Carpeta `%APPDATA%/com.matboard.app/boards/`:
 - `<id>.meta.json` → `{ id, name, background, createdAt, updatedAt, thumbnail }` (para listar
   sin leer los elementos)
 
+- `assets/<hash>.img` → imágenes (WebP, máx. 2048 px), compartidas entre pizarras: el id es
+  un hash del contenido, así pegar la misma imagen no la duplica.
+
 Escritura atómica (archivo temporal + renombrar). Coordenadas redondeadas a 2 decimales.
 Autoguardado 600 ms después del último cambio y al salir de la pizarra.
+
+## Exportar
+PNG (canvas 2x), SVG y PDF vectorial propio (`core/export/pdf.ts`, sin dependencias, se carga
+solo al exportar). Los resaltados se pintan antes que el resto (`paintOrder`).
+
+## Memoria
+La ventana se crea en Rust (`src-tauri/src/window.rs`) con argumentos de WebView2 que apagan
+servicios innecesarios. "Ahorro de memoria" agrega `--disable-gpu` (archivo `low-memory` en la
+carpeta de datos, leído antes de crear la ventana).
 
 ## Entrada
 Pointer Events con `getCoalescedEvents()`. `pointerType === 'pen'` usa presión real. El dedo

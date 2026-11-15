@@ -20,7 +20,7 @@ y todo guardado en tu computadora.
 
 ## Dónde se guardan las pizarras
 `%APPDATA%\com.matboard.app\boards\` — un `<id>.json` (contenido) y un `<id>.meta.json`
-(nombre, fondo, fechas, miniatura) por pizarra.
+(nombre, fondo, fechas, miniatura) por pizarra. Las imágenes van en `boards\assets\`.
 
 ## Estructura
 ```

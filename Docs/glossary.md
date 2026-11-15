@@ -7,6 +7,9 @@
 | Trazo | Lo que deja la pluma o el lápiz: una lista de puntos con presión | `StrokeElement` |
 | Pluma | Herramienta de trazo con grosor que varía mucho con la presión | `PenTool` (`variant: 'pen'`) |
 | Lápiz | Herramienta de trazo fino y parejo, levemente translúcido | `PenTool` (`variant: 'pencil'`) |
+| Resaltador | Trazo translúcido de ancho fijo que queda debajo de la tinta | `PenTool` (`variant: 'highlighter'`) |
+| Imagen | Foto o captura pegada en la pizarra; su archivo vive aparte | `ImageElement`, `AssetStore` |
+| Manija | Cuadradito de la selección para redimensionar, o círculo para rotar | `handles.ts` |
 | Goma | Borra elementos completos al tocarlos | `EraserTool` |
 | Forma | Rectángulo, elipse, línea o flecha | `ShapeElement` |
 | Fondo | Patrón de la hoja: cuadriculado, rayado, puntos o liso | `BackgroundKind` |

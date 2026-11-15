@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updated": "2026-11-15T01:20:00Z",
+  "updated": "2026-11-15T01:25:11Z",
   "goal": "Matboard entrega 2: resaltador, copiar/pegar, manijas, menos RAM, PDF e imagenes",
   "cadence": "delivery",
   "slices": [
@@ -76,7 +76,7 @@
     {
       "id": "S10",
       "name": "Imagenes y PDF",
-      "status": "doing",
+      "status": "done",
       "phases": [
         {
           "name": "build",
@@ -96,12 +96,12 @@
         },
         {
           "name": "verify",
-          "status": "doing",
+          "status": "done",
           "units": [
             {
               "id": 29,
               "do": "Tests nuevos + prueba en Edge + build release y medicion de RAM",
-              "status": "doing"
+              "status": "done"
             }
           ]
         }
@@ -124,10 +124,10 @@
     ],
     "keep_stops": []
   },
-  "waiting_on": null,
+  "waiting_on": "que el usuario pruebe la entrega 2 y la acepte o pida cambios",
   "notes": [
-    "QT-05: el usuario eligio las 4 opciones",
-    "RAM entrega 1: 183 MB privados en reposo (TD-01)",
-    "Aprobado 2026-11-15 ('sigamos'); autonomia 21-29; GitHub opcional, el usuario pasara URL si quiere remoto"
+    "Entrega 2 construida y verificada por el agente (2026-11-15): 31 tests, pruebas en Edge, PDF abierto en visor de Edge, build release ok",
+    "RAM release en reposo: 179-181 MB por defecto; 101 MB con Ahorro de memoria (sin GPU, menos fluido en zoom)",
+    "Remoto: github.com/JoaquinFeola/matboard (main). Deuda nueva: TD-07 assets huerfanos, TD-08 texto rotado, TD-09 simbolos en PDF"
   ]
 }
